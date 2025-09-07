@@ -6,6 +6,8 @@ CREATE TABLE edge (
   node_a_id BIGINT NOT NULL REFERENCES node(id) ON DELETE CASCADE,
   node_b_id BIGINT NOT NULL REFERENCES node(id) ON DELETE CASCADE,
   relationship_type TEXT NOT NULL CHECK (relationship_type IN ('contains','point','parent')),
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   PRIMARY KEY (node_a_id, node_b_id, relationship_type)
 );
 

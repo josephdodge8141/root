@@ -5,26 +5,34 @@ CREATE TABLE project (
   id BIGSERIAL PRIMARY KEY,
   name TEXT NOT NULL,
   team_id   BIGINT REFERENCES team(id),
-  member_id BIGINT REFERENCES member(id)
+  member_id BIGINT REFERENCES member(id),
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
 CREATE TABLE project_graph (
   id BIGSERIAL PRIMARY KEY,
   project_id BIGINT REFERENCES project(id),
-  persona TEXT NOT NULL
+  persona TEXT NOT NULL,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
 CREATE TABLE url (
   id BIGSERIAL PRIMARY KEY,
   project_id BIGINT REFERENCES project(id),
-  url TEXT NOT NULL
+  url TEXT NOT NULL,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
 CREATE TABLE agents (
   id BIGSERIAL PRIMARY KEY,
   name TEXT NOT NULL,
   prompt TEXT,
-  temperature NUMERIC
+  temperature NUMERIC,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
 COMMIT; 

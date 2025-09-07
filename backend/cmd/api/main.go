@@ -12,10 +12,12 @@ import (
 	"github.com/go-chi/chi/v5/middleware"
 	"go.uber.org/zap"
 
-	"github.com/yourorg/root-api/internal/config"
-	"github.com/yourorg/root-api/internal/db"
-	"github.com/yourorg/root-api/internal/http/handlers"
-	"github.com/yourorg/root-api/internal/logging"
+	"root-api/internal/auth"
+	"root-api/internal/config"
+	"root-api/internal/db"
+	"root-api/internal/http/handlers"
+	authmw "root-api/internal/http/middleware"
+	"root-api/internal/logging"
 )
 
 func main() {
@@ -42,12 +44,25 @@ func main() {
 		log.Fatal("db.migrate", zap.String("err", err.Error()))
 	}
 
+	authService := auth.NewService(cfg.JWTSecret)
+	authHandlers := handlers.NewAuthHandlers(pool, authService, log)
+	projectHandlers := handlers.NewProjectHandlers(pool, log)
+
 	r := chi.NewRouter()
 	r.Use(middleware.RequestID, middleware.RealIP, middleware.Recoverer, middleware.Timeout(60*time.Second))
 
 	r.Route("/api/v1", func(api chi.Router) {
 		api.Get("/health", handlers.Health)
 		api.Get("/version", handlers.Version(cfg.AppVersion))
+		
+		api.Post("/auth/signup", authHandlers.Signup)
+		api.Post("/auth/signin", authHandlers.Signin)
+
+		api.Group(func(protected chi.Router) {
+			protected.Use(authmw.AuthMiddleware(authService))
+			protected.Get("/projects", projectHandlers.ListProjects)
+			protected.Get("/projects/{id}", projectHandlers.GetProject)
+		})
 	})
 
 	srv := &http.Server{Addr: cfg.HTTPAddr, Handler: r}

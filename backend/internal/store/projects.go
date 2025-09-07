@@ -47,4 +47,41 @@ func ListProjects(ctx context.Context, db *pgxpool.Pool, teamID *int64) ([]Proje
 		projects = append(projects, p)
 	}
 	return projects, rows.Err()
+}
+
+const qListProjectsFiltered = `
+SELECT id, name, team_id, member_id
+FROM project
+WHERE ($1::bigint IS NULL OR team_id = $1)
+  AND ($2::bigint IS NULL OR member_id = $2)
+ORDER BY id DESC;`
+
+const qGetProjectByID = `
+SELECT id, name, team_id, member_id
+FROM project
+WHERE id = $1;`
+
+func ListProjectsFiltered(ctx context.Context, db *pgxpool.Pool, teamID, memberID *int64) ([]Project, error) {
+	rows, err := db.Query(ctx, qListProjectsFiltered, teamID, memberID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var projects []Project
+	for rows.Next() {
+		var p Project
+		err := rows.Scan(&p.ID, &p.Name, &p.TeamID, &p.MemberID)
+		if err != nil {
+			return nil, err
+		}
+		projects = append(projects, p)
+	}
+	return projects, rows.Err()
+}
+
+func GetProjectByID(ctx context.Context, db *pgxpool.Pool, projectID int64) (*Project, error) {
+	var p Project
+	err := db.QueryRow(ctx, qGetProjectByID, projectID).Scan(&p.ID, &p.Name, &p.TeamID, &p.MemberID)
+	return &p, err
 } 

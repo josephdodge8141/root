@@ -8,6 +8,7 @@ type Config struct {
 	AppVersion  string `env:"APP_VERSION"  envDefault:"0.1.0"`
 	HTTPAddr    string `env:"HTTP_ADDR"    envDefault:":8080"`
 	DatabaseURL string `env:"DATABASE_URL" envDefault:"postgres://root:root@localhost:5432/root?sslmode=disable"`
+	JWTSecret   string `env:"JWT_SECRET"   envDefault:"your-super-secret-jwt-key-change-in-production"`
 }
 
 func Load() (Config, error) {

@@ -8,20 +8,26 @@ CREATE TABLE node (
   project_id BIGINT REFERENCES project(id),
   type  TEXT,
   label TEXT,
-  description TEXT
+  description TEXT,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
 CREATE TABLE artifact (
   id BIGSERIAL PRIMARY KEY,
   name TEXT NOT NULL,
   base_url_id BIGINT REFERENCES url(id),
-  url_identifier TEXT NOT NULL
+  url_identifier TEXT NOT NULL,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
 -- many-to-many Node <-> Artifact
 CREATE TABLE node_artifact (
   node_id BIGINT NOT NULL REFERENCES node(id)       ON DELETE CASCADE,
   artifact_id BIGINT NOT NULL REFERENCES artifact(id) ON DELETE CASCADE,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   PRIMARY KEY (node_id, artifact_id)
 );
 
